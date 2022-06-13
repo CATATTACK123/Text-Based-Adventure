@@ -59,24 +59,38 @@ import java.util.Scanner;
 
 public class Game {
 
-  private HashMap<String, Integer> pastScores = new HashMap<String, Integer>();
+  //private HashMap<String, Integer> pastScores = new HashMap<String, Integer>();
   private String[][] dungeon;
   private boolean[][] clearedMap;
   private int[] currentRoom;
   private boolean bossAlive;
   private int score;
+  State s;
   Player player;
   Scanner scan = new Scanner(System.in);
   
   public Game() {
     System.out.println("Welcome to the dungeon!");
+    
+    String mainName = Utils.inputStr("\nWhat is your name?(to save scores) ");
+    s = State.restore(mainName);
+    if(s != null) {
+      System.out.println("\nWelcome back " + mainName + "!");
+    } else {
+      System.out.println("\nCreating new file for " + mainName + "...");
+      s = new State();
+      s.name = mainName;
+      s.pastScores = new HashMap<String, Integer>();
+    }
+    
     boolean keepGoing = true;
     while(keepGoing) {
       String command = Utils.inputStr("\nWhat would you like to do: show past scores(S), play game (P), quit(Q)? ");
       switch (command) {
   
         case "S", "s":
-          showPastScores();
+          //showPastScores();
+          s.printScores();
           break;
   
         case "P", "p":
@@ -91,12 +105,12 @@ public class Game {
     }
   }
 
-  public void showPastScores() {
-    System.out.println("\nHere are all past scores: ");
-    for(String i : pastScores.keySet()) {
-      System.out.println("Name: " + i + "     Score: " + pastScores.get(i));
-    }
-  }
+  //public void showPastScores() {
+  //  System.out.println("\nHere are all past scores: "); 
+  //  for(String i : pastScores.keySet()) {
+  //    System.out.println("Name: " + i + "     Score: " + pastScores.get(i));
+  //  }
+  //}
 
   public void initializeGame() {
     dungeon = new String[5][5];
@@ -370,13 +384,17 @@ public class Game {
     score += gold;
     bossAlive = false;
     System.out.println("You win! Good job! You received " + gold + " gold coins for defeating the boss, bringing your score to " + score + "!");
-    pastScores.put(player.getName(), score);
+    //pastScores.put(player.getName(), score);
+    s.pastScores.put(player.getName(), score);
+    s.save();
   }
   
   //for when player dies
   public void loss(String type) {
     System.out.println("Dang, looks like you lost to that pesky " + type + ", your score was " + score + ".");
-    pastScores.put(player.getName(), score);
+    //pastScores.put(player.getName(), score);
+    s.pastScores.put(player.getName(), score);
+    s.save();
   }
   
   public void printStats() {
